@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
@@ -14,10 +14,17 @@ export default function GameDetailScreen({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { getGame, ready, addPlayer, updatePlayer, removePlayer } = useStore();
+  const { getGame, ready, addPlayer, updatePlayer, removePlayer, deleteGame } =
+    useStore();
   const router = useRouter();
   const game = getGame(id);
   const smallBlind = game ? parseSmallBlind(game.stakes) : 5;
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  function handleDelete() {
+    deleteGame(id);
+    router.push("/");
+  }
 
   if (!ready) {
     return (
@@ -61,7 +68,31 @@ export default function GameDetailScreen({
           </div>
           <div className="header-sub">{shortDate(game.date)}</div>
         </div>
+        <button
+          className="icon-btn sm header-spacer"
+          aria-label="Delete game"
+          onClick={() => setConfirmDelete((v) => !v)}
+        >
+          <Icon name="trash" size={18} />
+        </button>
       </div>
+
+      {confirmDelete && (
+        <div className="delete-confirm">
+          <span>Delete this game? This can&apos;t be undone.</span>
+          <div className="delete-confirm-actions">
+            <button
+              className="delete-confirm-cancel"
+              onClick={() => setConfirmDelete(false)}
+            >
+              Cancel
+            </button>
+            <button className="delete-confirm-go" onClick={handleDelete}>
+              Delete game
+            </button>
+          </div>
+        </div>
+      )}
 
       {game.players.map((p) => (
         <div className="player" key={p.id}>

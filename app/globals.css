@@ -290,6 +290,48 @@ a {
   cursor: default;
 }
 
+/* Delete-game confirmation */
+.delete-confirm {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border-2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.delete-confirm > span {
+  font-size: 14px;
+  color: var(--muted-2);
+}
+.delete-confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+.delete-confirm-cancel,
+.delete-confirm-go {
+  flex: 1;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.delete-confirm-cancel {
+  background: transparent;
+  border: 0.5px solid var(--border-2);
+  color: var(--text);
+}
+.delete-confirm-go {
+  background: #7f1d1d;
+  border: none;
+  color: #fff;
+}
+.delete-confirm-go:active {
+  background: #641414;
+}
+
 /* Settlement */
 .section-label {
   font-size: 12px;
