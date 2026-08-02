@@ -36,7 +36,20 @@ Project → **Settings → Environment Variables** → add both, then **redeploy
 
 The login gate turns on automatically once the keys are present.
 
-## 3. (Optional) Email settings
+## 3. Create the database table
+
+Games ("rooms") are saved to Postgres per user. Set up the table once:
+
+1. In Supabase: **SQL Editor → New query**.
+2. Open [`supabase/schema.sql`](supabase/schema.sql) from this repo, copy the
+   whole file, paste it in, and click **Run**.
+
+That creates a single `public.games` table with **Row Level Security**, so each
+signed-in user can only see and edit their own games. You don't need any
+extensions or a special database — the standard Postgres that every Supabase
+project ships with is all it uses.
+
+## 4. (Optional) Email settings
 
 By default Supabase's **email/password** provider is already enabled — no extra
 provider setup needed. A few settings worth knowing under

@@ -4,10 +4,13 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import type { Game, Player } from "./types";
+import { createClient, isSupabaseConfigured } from "./supabase/client";
+import { useAuth } from "./auth";
 
 const STORAGE_KEY = "pokerapp:games";
 
@@ -15,6 +18,7 @@ function uid(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
+/** Demo data — only used in the local-storage fallback (no Supabase keys). */
 function seedGames(): Game[] {
   return [
     {
@@ -38,12 +42,6 @@ function seedGames(): Game[] {
         { id: uid(), name: "Player 2", buyin: 40, cashout: 0 },
       ],
     },
-    {
-      id: uid(),
-      stakes: "5c / 10c",
-      date: "2025-07-20",
-      players: [{ id: uid(), name: "Player 1", buyin: 40, cashout: 0 }],
-    },
   ];
 }
 
@@ -61,27 +59,108 @@ interface StoreValue {
 const StoreContext = createContext<StoreValue | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [games, setGames] = useState<Game[]>([]);
   const [ready, setReady] = useState(false);
 
-  // Load once on mount from localStorage (falling back to seed data).
+  // A live mirror of `games` so mutations can compute the next state without
+  // running side effects inside a setState updater (avoids double-fire in
+  // React strict mode).
+  const gamesRef = useRef<Game[]>(games);
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        setGames(JSON.parse(raw) as Game[]);
-      } else {
-        setGames(seedGames());
-      }
-    } catch {
-      setGames(seedGames());
-    }
-    setReady(true);
-  }, []);
+    gamesRef.current = games;
+  }, [games]);
 
-  // Persist on every change (after the initial load).
+  // One reusable Supabase browser client.
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
+  function sb() {
+    if (!supabaseRef.current) supabaseRef.current = createClient();
+    return supabaseRef.current;
+  }
+
+  // Debounce timers per game id so rapid edits (typing a name, tapping a
+  // stepper) collapse into a single write.
+  const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  function persistGame(game: Game, immediate = false) {
+    if (!isSupabaseConfigured || !user) return;
+    clearTimeout(saveTimers.current[game.id]);
+    const run = async () => {
+      const { error } = await sb().from("games").upsert({
+        id: game.id,
+        stakes: game.stakes,
+        date: game.date,
+        players: game.players,
+      });
+      if (error) console.error("Failed to save game:", error.message);
+    };
+    if (immediate) run();
+    else saveTimers.current[game.id] = setTimeout(run, 400);
+  }
+
+  async function deleteGameRow(id: string) {
+    if (!isSupabaseConfigured || !user) return;
+    clearTimeout(saveTimers.current[id]);
+    const { error } = await sb().from("games").delete().eq("id", id);
+    if (error) console.error("Failed to delete game:", error.message);
+  }
+
+  // Load games: from Supabase for the signed-in user, or from localStorage
+  // when the app is running without Supabase keys.
   useEffect(() => {
-    if (!ready) return;
+    let active = true;
+
+    async function load() {
+      if (!isSupabaseConfigured) {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          setGames(raw ? (JSON.parse(raw) as Game[]) : seedGames());
+        } catch {
+          setGames(seedGames());
+        }
+        setReady(true);
+        return;
+      }
+
+      if (!user) {
+        // Wait for auth to resolve (middleware guarantees a user in-app).
+        setGames([]);
+        setReady(false);
+        return;
+      }
+
+      setReady(false);
+      const { data, error } = await sb()
+        .from("games")
+        .select("id,stakes,date,players")
+        .order("date", { ascending: false });
+
+      if (!active) return;
+      if (error) {
+        console.error("Failed to load games:", error.message);
+        setGames([]);
+      } else {
+        setGames(
+          (data ?? []).map((r) => ({
+            id: r.id as string,
+            stakes: r.stakes as string,
+            date: r.date as string,
+            players: (r.players ?? []) as Player[],
+          }))
+        );
+      }
+      setReady(true);
+    }
+
+    load();
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
+  // Persist to localStorage only in the no-Supabase fallback mode.
+  useEffect(() => {
+    if (isSupabaseConfigured || !ready) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
     } catch {
@@ -89,56 +168,67 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, [games, ready]);
 
+  /** Apply a pure transform to one game, update state, and persist it. */
+  function mutateGame(gameId: string, fn: (g: Game) => Game) {
+    let updated: Game | undefined;
+    const next = gamesRef.current.map((g) => {
+      if (g.id !== gameId) return g;
+      updated = fn(g);
+      return updated;
+    });
+    gamesRef.current = next;
+    setGames(next);
+    if (updated) persistGame(updated);
+  }
+
   const value: StoreValue = {
     games,
     ready,
     getGame: (id) => games.find((g) => g.id === id),
+
     addGame: (stakes, date) => {
       const game: Game = { id: uid(), stakes, date, players: [] };
-      setGames((prev) => [game, ...prev]);
+      const next = [game, ...gamesRef.current];
+      gamesRef.current = next;
+      setGames(next);
+      persistGame(game, true); // write immediately so edits can follow
       return game;
     },
-    deleteGame: (id) => setGames((prev) => prev.filter((g) => g.id !== id)),
+
+    deleteGame: (id) => {
+      const next = gamesRef.current.filter((g) => g.id !== id);
+      gamesRef.current = next;
+      setGames(next);
+      deleteGameRow(id);
+    },
+
     addPlayer: (gameId) =>
-      setGames((prev) =>
-        prev.map((g) =>
-          g.id === gameId
-            ? {
-                ...g,
-                players: [
-                  ...g.players,
-                  {
-                    id: uid(),
-                    name: `Player ${g.players.length + 1}`,
-                    buyin: 40,
-                    cashout: 0,
-                  },
-                ],
-              }
-            : g
-        )
-      ),
+      mutateGame(gameId, (g) => ({
+        ...g,
+        players: [
+          ...g.players,
+          {
+            id: uid(),
+            name: `Player ${g.players.length + 1}`,
+            buyin: 40,
+            cashout: 0,
+          },
+        ],
+      })),
+
     updatePlayer: (gameId, playerId, patch) =>
-      setGames((prev) =>
-        prev.map((g) =>
-          g.id === gameId
-            ? {
-                ...g,
-                players: g.players.map((p) =>
-                  p.id === playerId ? { ...p, ...patch } : p
-                ),
-              }
-            : g
-        )
-      ),
+      mutateGame(gameId, (g) => ({
+        ...g,
+        players: g.players.map((p) =>
+          p.id === playerId ? { ...p, ...patch } : p
+        ),
+      })),
+
     removePlayer: (gameId, playerId) =>
-      setGames((prev) =>
-        prev.map((g) =>
-          g.id === gameId
-            ? { ...g, players: g.players.filter((p) => p.id !== playerId) }
-            : g
-        )
-      ),
+      mutateGame(gameId, (g) => ({
+        ...g,
+        players: g.players.filter((p) => p.id !== playerId),
+      })),
   };
 
   return (
