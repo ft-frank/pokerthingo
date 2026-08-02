@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
+import { blindLabel } from "@/lib/format";
 import { Icon } from "@/components/Icon";
 
 function today(): string {
@@ -23,7 +24,7 @@ export default function NewGameScreen() {
 
   function create() {
     if (!blindsValid) return;
-    const blinds = `$${sb} / $${bb}`;
+    const blinds = `${blindLabel(sb)} / ${blindLabel(bb)}`;
     const trimmed = name.trim();
     const label = trimmed ? `${trimmed} ${blinds}` : blinds;
     const game = addGame(label, date || today());
