@@ -1,0 +1,133 @@
+<h2 class="sr-only">Interactive mockup of a minimalist black-and-white poker home game app with games list, game detail, and settlement screens.</h2>
+<div style="max-width:380px;margin:0 auto;">
+<div id="phone" style="background:#000;border-radius:32px;border:0.5px solid #2a2a2a;overflow:hidden;height:720px;position:relative;font-family:var(--font-sans);color:#fff;">
+
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 22px 6px;font-size:13px;color:#fff;">
+<span style="font-weight:500;">9:41</span>
+<span style="display:flex;gap:5px;"><i class="ti ti-signal-4g" aria-hidden="true"></i><i class="ti ti-wifi" aria-hidden="true"></i><i class="ti ti-battery-3" aria-hidden="true"></i></span>
+</div>
+
+<div id="screens" style="height:672px;position:relative;overflow:hidden;">
+
+<div class="screen" data-screen="list" style="position:absolute;inset:0;padding:8px 20px;overflow-y:auto;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin:12px 0 24px;">
+<h1 style="font-size:24px;font-weight:500;margin:0;letter-spacing:-0.5px;">Games</h1>
+<button aria-label="New game" onclick="alert('New game')" style="width:38px;height:38px;border-radius:50%;background:#1a1a1a;border:0.5px solid #333;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;"><i class="ti ti-plus" aria-hidden="true"></i></button>
+</div>
+<div onclick="go('detail')" class="gcard" style="background:#111;border:0.5px solid #222;border-radius:14px;padding:18px;margin-bottom:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+<div>
+<div style="font-size:19px;font-weight:500;">$1 / $2</div>
+<div style="font-size:13px;color:#7a7a7a;margin-top:4px;">Fri 1 Aug · 5 players</div>
+</div>
+<i class="ti ti-chevron-right" style="color:#4a4a4a;font-size:20px;" aria-hidden="true"></i>
+</div>
+<div onclick="go('detail')" class="gcard" style="background:#111;border:0.5px solid #222;border-radius:14px;padding:18px;margin-bottom:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+<div>
+<div style="font-size:19px;font-weight:500;">25c / 50c</div>
+<div style="font-size:13px;color:#7a7a7a;margin-top:4px;">Sat 26 Jul · 6 players</div>
+</div>
+<i class="ti ti-chevron-right" style="color:#4a4a4a;font-size:20px;" aria-hidden="true"></i>
+</div>
+<div onclick="go('detail')" class="gcard" style="background:#111;border:0.5px solid #222;border-radius:14px;padding:18px;margin-bottom:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+<div>
+<div style="font-size:19px;font-weight:500;">5c / 10c</div>
+<div style="font-size:13px;color:#7a7a7a;margin-top:4px;">Sun 20 Jul · 4 players</div>
+</div>
+<i class="ti ti-chevron-right" style="color:#4a4a4a;font-size:20px;" aria-hidden="true"></i>
+</div>
+</div>
+
+<div class="screen" data-screen="detail" style="position:absolute;inset:0;padding:8px 20px 88px;overflow-y:auto;transform:translateX(100%);">
+<div style="display:flex;align-items:center;gap:12px;margin:12px 0 20px;">
+<button aria-label="Back" onclick="go('list')" style="width:34px;height:34px;border-radius:50%;background:#1a1a1a;border:0.5px solid #333;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+<div>
+<div style="font-size:22px;font-weight:500;letter-spacing:-0.5px;">$1 / $2</div>
+<div style="font-size:12px;color:#7a7a7a;">Fri 1 Aug</div>
+</div>
+</div>
+<div id="players"></div>
+<button onclick="addPlayer()" style="width:100%;background:transparent;border:0.5px dashed #333;border-radius:12px;padding:14px;color:#9a9a9a;font-size:14px;cursor:pointer;margin-top:4px;"><i class="ti ti-plus" style="vertical-align:-2px;margin-right:4px;" aria-hidden="true"></i>Add player</button>
+<div style="position:absolute;bottom:0;left:0;right:0;padding:16px 20px;background:linear-gradient(transparent,#000 30%);">
+<button onclick="settle()" style="width:100%;background:#3B6D11;border:none;border-radius:14px;padding:16px;color:#EAF3DE;font-size:16px;font-weight:500;cursor:pointer;">Calculate settlement</button>
+</div>
+</div>
+
+<div class="screen" data-screen="settle" style="position:absolute;inset:0;padding:8px 20px;overflow-y:auto;transform:translateX(100%);">
+<div style="display:flex;align-items:center;gap:12px;margin:12px 0 20px;">
+<button aria-label="Back" onclick="go('detail')" style="width:34px;height:34px;border-radius:50%;background:#1a1a1a;border:0.5px solid #333;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+<div style="font-size:22px;font-weight:500;letter-spacing:-0.5px;">Settlement</div>
+</div>
+<div style="font-size:12px;color:#7a7a7a;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Net results</div>
+<div id="nets" style="margin-bottom:24px;"></div>
+<div style="font-size:12px;color:#7a7a7a;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Who pays who</div>
+<div id="txns"></div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+var players=[
+ {n:'Alex',buyin:40,cash:95},
+ {n:'Sam',buyin:60,cash:20},
+ {n:'Jordan',buyin:40,cash:0},
+ {n:'Casey',buyin:20,cash:55},
+ {n:'Riley',buyin:40,cash:30}
+];
+function go(s){document.querySelectorAll('.screen').forEach(function(el){var d=el.dataset.screen;var order={list:0,detail:1,settle:2};el.style.transition='transform .28s ease';el.style.transform='translateX('+((order[d]-order[s])*100)+'%)';});}
+function render(){
+ var h='';
+ players.forEach(function(p,i){
+  h+='<div style="background:#111;border:0.5px solid #222;border-radius:14px;padding:14px 16px;margin-bottom:10px;">'
+   +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><span style="font-size:16px;font-weight:500;">'+p.n+'</span></div>'
+   +'<div style="display:flex;gap:10px;">'
+   +stepper('Buy-in',p.buyin,i,'buyin')
+   +stepper('Cash out',p.cash,i,'cash')
+   +'</div></div>';
+ });
+ document.getElementById('players').innerHTML=h;
+}
+function stepper(label,val,i,key){
+ return '<div style="flex:1;background:#000;border:0.5px solid #222;border-radius:10px;padding:8px 10px;">'
+  +'<div style="font-size:11px;color:#7a7a7a;margin-bottom:6px;">'+label+'</div>'
+  +'<div style="display:flex;align-items:center;justify-content:space-between;">'
+  +'<button onclick="adj('+i+",'"+key+"',-5)\" style=\"width:26px;height:26px;border-radius:8px;background:#1a1a1a;border:0.5px solid #333;color:#fff;cursor:pointer;padding:0;\">−</button>"
+  +'<span style="font-size:16px;font-weight:500;">$'+val+'</span>'
+  +'<button onclick="adj('+i+",'"+key+"',5)\" style=\"width:26px;height:26px;border-radius:8px;background:#1a1a1a;border:0.5px solid #333;color:#fff;cursor:pointer;padding:0;\">+</button>"
+  +'</div></div>';
+}
+function adj(i,key,d){players[i][key]=Math.max(0,players[i][key]+d);render();}
+function addPlayer(){players.push({n:'Player '+(players.length+1),buyin:40,cash:0});render();}
+function settle(){
+ var nets=players.map(function(p){return {n:p.n,net:p.cash-p.buyin};});
+ var nh='';
+ nets.slice().sort(function(a,b){return b.net-a.net;}).forEach(function(p){
+  var pos=p.net>=0;
+  nh+='<div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:0.5px solid #1a1a1a;"><span style="font-size:15px;">'+p.n+'</span>'
+   +'<span style="font-size:15px;font-weight:500;color:'+(pos?'#97C459':'#8a8a8a')+';">'+(pos?'+':'−')+'$'+Math.abs(p.net)+'</span></div>';
+ });
+ document.getElementById('nets').innerHTML=nh;
+ var debt=nets.filter(function(p){return p.net<0;}).map(function(p){return {n:p.n,a:-p.net};}).sort(function(a,b){return b.a-a.a;});
+ var cred=nets.filter(function(p){return p.net>0;}).map(function(p){return {n:p.n,a:p.net};}).sort(function(a,b){return b.a-a.a;});
+ var t=[],di=0,ci=0;
+ while(di<debt.length&&ci<cred.length){
+  var m=Math.min(debt[di].a,cred[ci].a);
+  if(m>0)t.push({from:debt[di].n,to:cred[ci].n,a:m});
+  debt[di].a-=m;cred[ci].a-=m;
+  if(debt[di].a<=0.001)di++;
+  if(cred[ci].a<=0.001)ci++;
+ }
+ var th=t.length?'':'<div style="color:#7a7a7a;font-size:14px;padding:12px 0;">Everyone\'s even.</div>';
+ t.forEach(function(x){
+  th+='<div style="display:flex;align-items:center;gap:10px;background:#111;border:0.5px solid #222;border-radius:12px;padding:14px 16px;margin-bottom:10px;">'
+   +'<span style="font-size:15px;font-weight:500;">'+x.from+'</span>'
+   +'<i class="ti ti-arrow-right" style="color:#97C459;font-size:18px;" aria-hidden="true"></i>'
+   +'<span style="font-size:15px;font-weight:500;">'+x.to+'</span>'
+   +'<span style="margin-left:auto;font-size:16px;font-weight:500;color:#97C459;">$'+Math.round(x.a)+'</span></div>';
+ });
+ document.getElementById('txns').innerHTML=th;
+ go('settle');
+}
+render();
+</script>
