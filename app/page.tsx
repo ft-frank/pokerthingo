@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { shortDate } from "@/lib/format";
 import { Icon } from "@/components/Icon";
+import { UserMenu } from "@/components/UserMenu";
 
 export default function GamesListScreen() {
   const { games, ready } = useStore();
@@ -15,6 +16,7 @@ export default function GamesListScreen() {
       <div className="header">
         <h1>Games</h1>
         <div className="header-spacer" />
+        <UserMenu />
         <button
           className="icon-btn"
           aria-label="New game"

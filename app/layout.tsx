@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
+import { AuthProvider } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Poker Night",
@@ -30,11 +31,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <StoreProvider>
-          <div className="shell">
-            <div className="app">{children}</div>
-          </div>
-        </StoreProvider>
+        <AuthProvider>
+          <StoreProvider>
+            <div className="shell">
+              <div className="app">{children}</div>
+            </div>
+          </StoreProvider>
+        </AuthProvider>
       </body>
     </html>
   );

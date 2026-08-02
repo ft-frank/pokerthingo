@@ -393,3 +393,131 @@ a {
   padding: 40px 0;
   text-align: center;
 }
+
+/* ── Auth: login screen ────────────────────────────────────── */
+.login {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.login-mark {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  border: 0.5px solid var(--border-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+
+.login-title {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.login-sub {
+  color: var(--muted-2);
+  font-size: 14px;
+  margin: 0 0 22px;
+  line-height: 1.5;
+}
+
+.google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px;
+  border-radius: 14px;
+  background: #fff;
+  color: #1f1f1f;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.google-btn:active {
+  background: #ececec;
+}
+.google-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.login-error {
+  color: #e5674f;
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+
+.login-notice {
+  background: var(--surface);
+  border: 0.5px solid var(--border-2);
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted-2);
+  text-align: left;
+}
+.login-notice code {
+  color: var(--text);
+  font-size: 12px;
+  word-break: break-all;
+}
+
+/* ── Auth: header user menu ────────────────────────────────── */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 0.5px solid var(--border-2);
+}
+.user-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: var(--muted-2);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.text-btn:active {
+  color: var(--text);
+}
