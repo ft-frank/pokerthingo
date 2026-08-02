@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { Icon } from "@/components/Icon";
 
-const PRESETS = ["5c / 10c", "25c / 50c", "$1 / $2", "$2 / $5", "$5 / $10"];
-
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -14,12 +12,20 @@ function today(): string {
 export default function NewGameScreen() {
   const { addGame } = useStore();
   const router = useRouter();
-  const [stakes, setStakes] = useState("$1 / $2");
+  const [name, setName] = useState("");
+  const [smallBlind, setSmallBlind] = useState("1");
+  const [bigBlind, setBigBlind] = useState("2");
   const [date, setDate] = useState(today());
 
+  const sb = Number(smallBlind);
+  const bb = Number(bigBlind);
+  const blindsValid = sb > 0 && bb > 0;
+
   function create() {
-    const label = stakes.trim();
-    if (!label) return;
+    if (!blindsValid) return;
+    const blinds = `$${sb} / $${bb}`;
+    const trimmed = name.trim();
+    const label = trimmed ? `${trimmed} ${blinds}` : blinds;
     const game = addGame(label, date || today());
     router.replace(`/game/${game.id}`);
   }
@@ -38,25 +44,41 @@ export default function NewGameScreen() {
       </div>
 
       <div className="field">
-        <label htmlFor="stakes">Stakes</label>
+        <label htmlFor="name">Name</label>
         <input
-          id="stakes"
-          value={stakes}
-          onChange={(e) => setStakes(e.target.value)}
-          placeholder="$1 / $2"
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Frank's poker night"
         />
-        <div className="stakes-presets">
-          {PRESETS.map((p) => (
-            <button
-              type="button"
-              key={p}
-              className={`preset${p === stakes ? " active" : ""}`}
-              onClick={() => setStakes(p)}
-            >
-              {p}
-            </button>
-          ))}
-        </div>
+      </div>
+
+      <div className="field">
+        <label htmlFor="small-blind">Small blind</label>
+        <input
+          id="small-blind"
+          type="number"
+          inputMode="decimal"
+          min="0"
+          step="any"
+          value={smallBlind}
+          onChange={(e) => setSmallBlind(e.target.value)}
+          placeholder="1"
+        />
+      </div>
+
+      <div className="field">
+        <label htmlFor="big-blind">Big blind</label>
+        <input
+          id="big-blind"
+          type="number"
+          inputMode="decimal"
+          min="0"
+          step="any"
+          value={bigBlind}
+          onChange={(e) => setBigBlind(e.target.value)}
+          placeholder="2"
+        />
       </div>
 
       <div className="field">
@@ -70,7 +92,7 @@ export default function NewGameScreen() {
       </div>
 
       <div className="footer">
-        <button className="btn-primary" onClick={create} disabled={!stakes.trim()}>
+        <button className="btn-primary" onClick={create} disabled={!blindsValid}>
           Create game
         </button>
       </div>

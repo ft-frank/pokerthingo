@@ -4,7 +4,7 @@ import { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
-import { shortDate } from "@/lib/format";
+import { shortDate, parseSmallBlind } from "@/lib/format";
 import { Icon } from "@/components/Icon";
 import { Stepper } from "@/components/Stepper";
 
@@ -17,6 +17,7 @@ export default function GameDetailScreen({
   const { getGame, ready, addPlayer, updatePlayer, removePlayer } = useStore();
   const router = useRouter();
   const game = getGame(id);
+  const smallBlind = game ? parseSmallBlind(game.stakes) : 5;
 
   if (!ready) {
     return (
@@ -90,6 +91,7 @@ export default function GameDetailScreen({
             <Stepper
               label="Cash out"
               value={p.cashout}
+              step={smallBlind}
               onChange={(v) => updatePlayer(game.id, p.id, { cashout: v })}
             />
           </div>
