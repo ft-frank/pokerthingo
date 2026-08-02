@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Offline · Poker Night</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #060606;
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+      }
+      .wrap {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 24px;
+        gap: 8px;
+      }
+      .mark {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        background: #1a1a1a;
+        border: 0.5px solid #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        margin-bottom: 10px;
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 500;
+        margin: 0;
+      }
+      p {
+        color: #9a9a9a;
+        font-size: 14px;
+        margin: 0 0 20px;
+        max-width: 260px;
+        line-height: 1.5;
+      }
+      button {
+        height: 44px;
+        padding: 0 22px;
+        border-radius: 14px;
+        border: none;
+        background: #3b6d11;
+        color: #eaf3de;
+        font-size: 15px;
+        font-weight: 500;
+        font-family: inherit;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="mark">♠</div>
+      <h1>You're offline</h1>
+      <p>Poker Night needs a connection to load your games. Reconnect and try again.</p>
+      <button onclick="location.reload()">Retry</button>
+    </div>
+  </body>
+</html>

@@ -466,6 +466,32 @@ a {
   border-color: var(--accent);
 }
 
+.login-password {
+  position: relative;
+  width: 100%;
+}
+.login-password .login-input {
+  padding-right: 46px;
+}
+.login-eye {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 48px;
+  width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+}
+.login-eye:active {
+  color: var(--text);
+}
+
 .login-btn {
   width: 100%;
   height: 48px;
