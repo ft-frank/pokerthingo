@@ -63,7 +63,7 @@ function LoginCard() {
   return (
     <div className="login-card">
       <div className="login-mark">♠</div>
-      <h1 className="login-title">Poker Night</h1>
+      <h1 className="login-title">Frank's Poker Night</h1>
       <p className="login-sub">
         {mode === "signin"
           ? "Sign in to track buy-ins and settle up."
